@@ -443,7 +443,7 @@ CREATE TABLE `users` (
 -- Records of users
 -- ----------------------------
 BEGIN;
-INSERT INTO `users` (`id`, `created_at`, `updated_at`, `deleted_at`, `username`, `password`, `nickname`, `given_name`, `mail`, `job_number`, `mobile`, `avatar`, `postal_address`, `departments`, `position`, `introduction`, `status`, `creator`, `source`, `department_id`, `source_user_id`, `source_union_id`, `user_dn`) VALUES (1, '2022-09-01 20:22:26.315', '2022-09-01 20:22:26.315', NULL, 'admin', 'DnIK8eTCFS1eg10z3L3CFVS81KsduXBOe1Xxgjyq7eR1qEPK7zJg5Ael0m1tPR3lr8jo2r++UneO9uAPWtzvjgDnxtRYxmTQSOTngqXrwZoJ+f153eUTQ/3Q6iWrAjbLeCsPVxDh/irC/X2mZy+j8ZvSLzqiIC62/UUP6DGI3ss=', '管理员', '最强后台', 'admin@eryajf.net', '0000', '18888888888', 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif', '中国河南省南阳市', '运维部', '系统管理员', '最强后台的管理员', 1, '系统', '', '', '', '', 'cn=admin,dc=eryajf,dc=net');
+INSERT INTO `users` (`id`, `created_at`, `updated_at`, `deleted_at`, `username`, `password`, `nickname`, `given_name`, `mail`, `job_number`, `mobile`, `avatar`, `postal_address`, `departments`, `position`, `introduction`, `status`, `creator`, `source`, `department_id`, `source_user_id`, `source_union_id`, `user_dn`) VALUES (1, '2022-09-01 20:22:26.315', '2022-09-01 20:22:26.315', NULL, 'admin', 'DnIK8eTCFS1eg10z3L3CFVS81KsduXBOe1Xxgjyq7eR1qEPK7zJg5Ael0m1tPR3lr8jo2r++UneO9uAPWtzvjgDnxtRYxmTQSOTngqXrwZoJ+f153eUTQ/3Q6iWrAjbLeCsPVxDh/irC/X2mZy+j8ZvSLzqiIC62/UUP6DGI3ss=', '管理员', '最强后台', 'admin@ldap.net', '0000', '18888888888', 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif', '北京', '运维部', '系统管理员', '超级管理员', 1, '系统', '', '', '', '', 'cn=admin,dc=ldap,dc=net');
 COMMIT;
 
 SET FOREIGN_KEY_CHECKS = 1;

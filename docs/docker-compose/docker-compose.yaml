@@ -16,7 +16,7 @@ services:
       TZ: Asia/Shanghai # 设置容器时区与宿主机保持一致
       MYSQL_ROOT_PASSWORD: 123456 # 设置root密码
       MYSQL_ROOT_HOST: "%"
-      MYSQL_DATABASE: go_ldap_admin
+      MYSQL_DATABASE: ldap
     volumes:
       # 数据挂载目录自行修改哦！
       - /etc/localtime:/etc/localtime:ro # 设置容器时区与宿主机保持一致
@@ -33,8 +33,8 @@ services:
     restart: always
     environment:
       TZ: Asia/Shanghai
-      LDAP_ORGANISATION: "eryajf.net"
-      LDAP_DOMAIN: "eryajf.net"
+      LDAP_ORGANISATION: "ldap.net"
+      LDAP_DOMAIN: "ldap.net"
       LDAP_ADMIN_PASSWORD: "123456"
     command: [ '--copy-service' ]
     volumes:

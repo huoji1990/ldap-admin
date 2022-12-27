@@ -69,6 +69,9 @@ func main() {
 	logic.InitCron()
 
 	common.Log.Info(fmt.Sprintf("Server is running at %s:%d/%s", host, port, config.Conf.System.UrlPathPrefix))
+	
+	//处理飞书MQ离职消息
+	logic.FeishuMqDelete()
 
 	// Wait for interrupt signal to gracefully shutdown the server with
 	// a timeout of 5 seconds.

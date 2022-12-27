@@ -117,20 +117,3 @@ func GetAllUsers() (ret []map[string]interface{}, err error) {
 	}
 	return
 }
-
-// 官方文档： https://open.feishu.cn/document/uAjLw4CM/ukTMukTMukTM/ehr/ehr-v1/employee/list
-// GetLeaveUserIds 获取离职人员ID列表
-func GetLeaveUserIds() ([]string, error) {
-	var ids []string
-	users, _, err := InitFeiShuClient().EHR.GetEHREmployeeList(context.TODO(), &lark.GetEHREmployeeListReq{
-		Status:     []int64{5},
-		UserIDType: lark.IDTypePtr(lark.IDTypeUnionID), // 只查询unionID
-	})
-	if err != nil {
-		return nil, err
-	}
-	for _, user := range users.Items {
-		ids = append(ids, user.UserID)
-	}
-	return ids, nil
-}

@@ -100,32 +100,6 @@ func (d FeiShuLogic) SyncFeiShuUsers(c *gin.Context, req interface{}) (data inte
 		}
 	}
 
-	// 3.获取飞书已离职用户id列表
-	userIds, err := feishu.GetLeaveUserIds()
-	if err != nil {
-		return nil, tools.NewOperationError(fmt.Errorf("SyncFeiShuUsers获取飞书离职用户列表失败：%s", err.Error()))
-	}
-	// 4.遍历id，开始处理
-	for _, uid := range userIds {
-		if isql.User.Exist(tools.H{"source_user_id": fmt.Sprintf("%s_%s", config.Conf.FeiShu.Flag, uid)}) {
-			user := new(model.User)
-			err = isql.User.Find(tools.H{"source_union_id": fmt.Sprintf("%s_%s", config.Conf.FeiShu.Flag, uid)}, user)
-			if err != nil {
-				return nil, tools.NewMySqlError(fmt.Errorf("在MySQL查询用户失败: " + err.Error()))
-			}
-			// 先从ldap删除用户
-			err = ildap.User.Delete(user.UserDN)
-			if err != nil {
-				return nil, tools.NewLdapError(fmt.Errorf("在LDAP删除用户失败" + err.Error()))
-			}
-			// 然后更新MySQL中用户状态
-			err = isql.User.ChangeStatus(int(user.ID), 2)
-			if err != nil {
-				return nil, tools.NewMySqlError(fmt.Errorf("在MySQL更新用户状态失败: " + err.Error()))
-			}
-		}
-	}
-
 	return nil, nil
 }
 
@@ -163,3 +137,34 @@ func (d FeiShuLogic) AddUsers(user *model.User) error {
 	}
 	return nil
 }
+
+	// 订阅MQ飞书离职信息，并删除用户 
+	func FeishuMqDelete(){
+		c, err := rocketmq.NewPushConsumer(consumer.WithGroupName("GID_DEVOPS_LDAP"), // 消费者组
+		consumer.WithNameServer([]string{"127.0.0.1:9876"}),  // nameserver
+		consumer.WithRetry(2),
+		consumer.WithConsumeFromWhere(consumer.ConsumeFromLastOffset))
+	 if err != nil {
+		fmt.Println("消费者实例创建失败")
+	 }
+	 c.Subscribe("TOPIC_PROD_FEISHU_EVENT", consumer.MessageSelector{}, func(ctx context.Context, msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
+		  for i := range msgs {
+		   var data map[string]interface{}
+		   if err := json.Unmarshal([]byte(msgs[i].Body), &data); err == nil {
+				if isql.User.Exist(tools.H{"source_union_id": fmt.Sprintf("%s_%s", config.Conf.FeiShu.Flag, data["unionId"])}) {
+					user := new(model.User)
+					isql.User.Find(tools.H{"source_union_id": fmt.Sprintf("%s_%s", config.Conf.FeiShu.Flag, data["unionId"])}, user)
+					// ldap删除用户
+					ildap.User.Delete(user.UserDN)
+					// Mysql删除用户
+					isql.User.Delete([]uint{user.ID})
+				}
+			}
+			  
+		}
+  
+		return consumer.ConsumeSuccess, nil    // 回调函数
+  })
+	  c.Start()
+}
+

@@ -9,9 +9,9 @@ system:
   # 是否初始化数据(没有初始数据时使用, 已发布正式版改为false)
   init-data: true
   # rsa公钥文件路径(config.yml相对路径, 也可以填绝对路径)
-  rsa-public-key: go-ldap-admin-pub.pem
+  rsa-public-key: /app/conf/go-ldap-admin-pub.pem
   # rsa私钥文件路径(config.yml相对路径, 也可以填绝对路径)
-  rsa-private-key: go-ldap-admin-priv.pem
+  rsa-private-key: /app/conf/go-ldap-admin-priv.pem
 
 logs:
   # 日志等级(-1:Debug, 0:Info, 1:Warn, 2:Error, 3:DPanic, 4:Panic, 5:Fatal, -1<=level<=5, 参照zap.level源码)
@@ -33,7 +33,7 @@ mysql:
   # 密码
   password: 123456
   # 数据库名
-  database: go_ldap_admin
+  database: ldap
   # 主机地址
   host: localhost
   # 端口
@@ -52,7 +52,7 @@ mysql:
 # casbin配置
 casbin:
   # 模型配置文件, config.yml相对路径
-  model-path: 'rbac_model.conf'
+  model-path: '/app/conf/rbac_model.conf'
 
 # jwt配置
 jwt:
@@ -75,8 +75,8 @@ rate-limit:
 # email configuration
 email:
   port: '465'
-  user: 'Linuxlql@163.com'
-  from: 'go-ldap-admin后台'
+  user: 'ldap-admin@163.com'
+  from: 'ldap-admin后台'
   host: 'smtp.163.com'
   # is-ssl: true
   pass: 'your password'
@@ -88,13 +88,13 @@ ldap:
   # ladp最大连接数设置
   max-conn: 10
   # ldap服务器基础DN
-  base-dn: "dc=eryajf,dc=net"
+  base-dn: "dc=ldap,dc=net"
   # ldap管理员DN
-  admin-dn: "cn=admin,dc=eryajf,dc=net"
+  admin-dn: "cn=admin,dc=ldap,dc=net"
   # ldap管理员密码
   admin-pass: "123456"
   # ldap用户OU
-  user-dn: "ou=people,dc=eryajf,dc=net"
+  user-dn: "ou=people,dc=ldap,dc=net"
   # ldap用户初始默认密码
   user-init-password: "123456"
   # 是否允许更改分组DN
@@ -103,21 +103,18 @@ ldap:
   user-name-modify: false
 # 📢 即便用不到如下三段配置信息，也不要删除，否则会有一些奇怪的错误出现
 dingtalk:
-  # 配置获取详细文档参考： http://ldapdoc.eryajf.net/pages/94f43a/
   flag: "dingtalk" # 作为钉钉在平台的标识
   app-key: "xxxxxxxxxxxxxxx" # 应用的key
   app-secret: "xxxxxxxxxxxxxxxxxxxxxxxxxxxx" # 应用的secret
   agent-id: "12121212" # 目前agent-id未使用到，可忽略
   enable-sync: false  # 是否开启定时同步钉钉的任务
 wecom:
-  # 配置获取详细文档参考：http://ldapdoc.eryajf.net/pages/cf1698/
   flag: "wecom" # 作为微信在平台的标识
   corp-id: "xxxx" # 企业微信企业ID
   agent-id: 1000003 # 企业微信中创建的应用ID
   corp-secret: "xxxxx" # 企业微信中创建的应用secret
   enable-sync: false # 是否开启定时同步企业微信的任务
 feishu:
-  # 配置获取详细文档参考：http://ldapdoc.eryajf.net/pages/83c90b/
   flag: "feishu" # 作为飞书在平台的标识
   app-id: "xxxxxxx" # 飞书的app-id
   app-secret: "xxxxxxxxxxx" # 飞书的app-secret

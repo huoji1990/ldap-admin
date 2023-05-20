@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -17,7 +18,7 @@ import (
 type FeiShuLogic struct {
 }
 
-//通过飞书获取部门信息
+// 通过飞书获取部门信息
 func (d *FeiShuLogic) SyncFeiShuDepts(c *gin.Context, req interface{}) (data interface{}, rspError interface{}) {
 	// 1.获取所有部门
 	deptSource, err := feishu.GetAllDepts()
@@ -80,7 +81,7 @@ func (d FeiShuLogic) AddDepts(group *model.Group) error {
 	return nil
 }
 
-//根据现有数据库同步到的部门信息，开启用户同步
+// 根据现有数据库同步到的部门信息，开启用户同步
 func (d FeiShuLogic) SyncFeiShuUsers(c *gin.Context, req interface{}) (data interface{}, rspError interface{}) {
 	// 1.获取飞书用户列表
 	staffSource, err := feishu.GetAllUsers()
@@ -138,19 +139,19 @@ func (d FeiShuLogic) AddUsers(user *model.User) error {
 	return nil
 }
 
-	// 订阅MQ飞书离职信息，并删除用户 
-	func FeishuMqDelete(){
-		c, err := rocketmq.NewPushConsumer(consumer.WithGroupName("GID_DEVOPS_LDAP"), // 消费者组
-		consumer.WithNameServer([]string{"127.0.0.1:9876"}),  // nameserver
+// 订阅MQ飞书离职信息，并删除用户
+func FeishuMqDelete() {
+	c, err := rocketmq.NewPushConsumer(consumer.WithGroupName("GID_DEVOPS_LDAP"), // 消费者组
+		consumer.WithNameServer([]string{"127.0.0.1:9876"}), // nameserver
 		consumer.WithRetry(2),
 		consumer.WithConsumeFromWhere(consumer.ConsumeFromLastOffset))
-	 if err != nil {
+	if err != nil {
 		fmt.Println("消费者实例创建失败")
-	 }
-	 c.Subscribe("TOPIC_PROD_FEISHU_EVENT", consumer.MessageSelector{}, func(ctx context.Context, msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
-		  for i := range msgs {
-		   var data map[string]interface{}
-		   if err := json.Unmarshal([]byte(msgs[i].Body), &data); err == nil {
+	}
+	c.Subscribe("TOPIC_PROD_FEISHU_EVENT", consumer.MessageSelector{}, func(ctx context.Context, msgs ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
+		for i := range msgs {
+			var data map[string]interface{}
+			if err := json.Unmarshal([]byte(msgs[i].Body), &data); err == nil {
 				if isql.User.Exist(tools.H{"source_union_id": fmt.Sprintf("%s_%s", config.Conf.FeiShu.Flag, data["unionId"])}) {
 					user := new(model.User)
 					isql.User.Find(tools.H{"source_union_id": fmt.Sprintf("%s_%s", config.Conf.FeiShu.Flag, data["unionId"])}, user)
@@ -160,11 +161,22 @@ func (d FeiShuLogic) AddUsers(user *model.User) error {
 					isql.User.Delete([]uint{user.ID})
 				}
 			}
-			  
+
 		}
-  
-		return consumer.ConsumeSuccess, nil    // 回调函数
-  })
-	  c.Start()
+
+		return consumer.ConsumeSuccess, nil // 回调函数
+	})
+	c.Start()
 }
 
+// 依据飞书事件删除用户
+func FeishuEventDelete(unionid string) {
+	if isql.User.Exist(tools.H{"source_union_id": fmt.Sprintf("%s_%s", config.Conf.FeiShu.Flag, unionid)}) {
+		user := new(model.User)
+		isql.User.Find(tools.H{"source_union_id": fmt.Sprintf("%s_%s", config.Conf.FeiShu.Flag, unionid)}, user)
+		// ldap删除用户
+		ildap.User.Delete(user.UserDN)
+		// Mysql删除用户
+		isql.User.Delete([]uint{user.ID})
+	}
+}

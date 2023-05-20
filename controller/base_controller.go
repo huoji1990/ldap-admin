@@ -33,6 +33,7 @@ func (m *BaseController) GetPasswd(c *gin.Context) {
 	})
 }
 
+// GetFeishuEvent 处理飞书事件
 func GetFeishuEvent(c *gin.Context) {
 	json := make(map[string]interface{})
 	c.BindJSON(&json)

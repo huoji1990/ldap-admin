@@ -32,3 +32,13 @@ func (m *BaseController) GetPasswd(c *gin.Context) {
 		return logic.Base.GetPasswd(c, req)
 	})
 }
+
+func GetFeishuEvent(c *gin.Context) {
+	json := make(map[string]interface{})
+	c.BindJSON(&json)
+	header := json["header"].(map[string]interface{})
+	event := header["event"].(map[string]interface{})
+	if header["event_type"] == "contact.user.deleted_v3" {
+		logic.FeishuEventDelete(event["union_id"])
+	}
+}

@@ -169,7 +169,7 @@ func FeishuMqDelete() {
 	c.Start()
 }
 
-// 依据飞书事件删除用户
+// 根据飞书事件删除用户
 func FeishuEventDelete(unionid string) {
 	if isql.User.Exist(tools.H{"source_union_id": fmt.Sprintf("%s_%s", config.Conf.FeiShu.Flag, unionid)}) {
 		user := new(model.User)
